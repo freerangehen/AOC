@@ -102,6 +102,11 @@ char comparePackets(Packet left, Packet right)
 
 }
 
+bool isLessThan(Packet left, Packet right)
+{
+    return (comparePackets(left, right) == '<');
+}
+
 Packet createPacket(string packetString)
 {
     vector<Packet> stack;
@@ -149,8 +154,74 @@ Packet createPacket(string packetString)
 
     }
     // cout << "length of stack = " << stack.size() << endl;
-    return currentPacket;
+    return currentPacket.contents[0];
 } 
+
+
+bool isDivider(Packet packet)
+{
+    /*
+    cout << "inspecting packet.number = " << packet.number << ", packet.contents.size() = " << packet.contents.size() << endl;
+    if (packet.contents.size() == 1)
+    {
+        cout << "single content packet, packet.contents[0].number = " << packet.contents[0].number << endl;
+        if (packet.contents[0].contents.size() == 1)
+        {
+            cout << "single content packet, packet.contents[0].contents[0].number = " << packet.contents[0].contents[0].number << endl;
+        }
+    }
+    */
+    if ((isInt(packet)) || (packet.contents.size() == 0)) {return false;}
+
+    if ((packet.contents.size() == 1) && (packet.contents[0].contents.size() == 1) && (packet.contents[0].contents[0].number == 2))
+    {
+        return true;
+    }
+    if ((packet.contents.size() == 1) && (packet.contents[0].contents.size() == 1) && (packet.contents[0].contents[0].number == 6))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+void part2(string filename){
+    string line, instruction, stringArgument;
+    int rowCount = 0;
+
+    vector<Packet> allPackets;
+
+    ifstream file(filename);
+    while (getline(file, line))
+    {
+        if (line.length() == 0)
+        {
+            // empty line
+            continue;
+        }
+        allPackets.push_back(createPacket(line));
+    }
+
+    cout << " read " << allPackets.size() << " packets" << endl;
+
+    
+    sort(allPackets.begin(), allPackets.end(), isLessThan);
+    cout << "afer sorting" << endl;
+    for (int i=0; i<allPackets.size(); i++)
+    {
+        /*
+        printPacket(allPackets[i]);
+        cout <<  endl;
+        */
+        if (isDivider(allPackets[i]))
+        {
+            cout << "divider detected at index " << i + 1 << endl;
+        }
+
+    }
+}
+
 
 
 void part1(string filename){
@@ -192,7 +263,7 @@ void part1(string filename){
         cout << " vs ";
         printPacket(eachPair[1]);
         cout << endl;
-        if (comparePackets(eachPair[0].contents[0], eachPair[1].contents[0]) == '<')
+        if (comparePackets(eachPair[0], eachPair[1]) == '<')
         {
             indexSum += (i + 1);
             cout << ">>> right order" << endl;
@@ -205,12 +276,12 @@ void part1(string filename){
         */
     }
     cout << "index sum = " << indexSum << endl;
-
+    
 }
 
 
 int main(){
     // part1("day13Test.txt");
-    part1("day13.txt");
+    part2("day13.txt");
 }
 
